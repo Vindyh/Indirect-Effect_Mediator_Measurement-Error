@@ -167,7 +167,7 @@ noptim_probit_delta <- function(Y, M, C, delta, lod, shift, initial, sigma.u){
   numi.0 <- beta.0 + beta.1 * (alpha.0_hat - shift)
   numi.1 <- beta.0 + beta.1 * (alpha.0_hat + alpha.1_hat - shift) + beta.2
   
-  # denominator in equation A.13 
+  # denominator in theorem 3.2 
   denom <-  sqrt(1 + (beta.1^2 * sigma_M_sq))
   
   #phati.0 and phati.1 are probit expressions under shift for c = 0 and c = 1 
@@ -207,76 +207,76 @@ noptim_probit_delta <- function(Y, M, C, delta, lod, shift, initial, sigma.u){
     
     print("lambda:")
     print(lambda)
-    ## derivatives of equation (A.14) 
+    ## derivatives of equation (A.12) 
     
-    # Denominator of eq. A.14 
-    denom_A14 <- lambda * sqrt( 1 + (beta1.star_hat^2 * sigma_M.star_hat_sq))
+    # Denominator of eq. A.12 
+    denom_A12 <- lambda * sqrt( 1 + (beta1.star_hat^2 * sigma_M.star_hat_sq))
     
-    # Numerator of A.14 'under shift' for c = 0 and c = 1 respectively
+    # Numerator of A.12 'under shift' for c = 0 and c = 1 respectively
     num_C0.shift <- (beta0.star_hat * lambda) + beta1.star_hat * ((lambda * alpha.0_hat) - shift)
     num_C1.shift <- (beta0.star_hat * lambda) + beta1.star_hat * ((lambda * alpha.0_hat) + (lambda * alpha.1_hat) - shift) +  (beta2.star_hat * lambda)
     
-    # derivative of probit function 'under shift' for c = 0 and c = 1 respectively (eq. A.14).
-    phi_C0.shift <- dnorm( num_C0.shift / denom_A14 )
-    phi_C1.shift <- dnorm( num_C1.shift / denom_A14 )
+    # derivative of probit function 'under shift' for c = 0 and c = 1 respectively (eq. A.12).
+    phi_C0.shift <- dnorm( num_C0.shift / denom_A12 )
+    phi_C1.shift <- dnorm( num_C1.shift / denom_A12 )
     
-    # Numerator of A.14 'under no shift' for c = 0 and c = 1 respectively    
+    # Numerator of A.12 'under no shift' for c = 0 and c = 1 respectively    
     num_C0 <- (beta0.star_hat * lambda) + beta1.star_hat * lambda * alpha.0_hat
     num_C1 <- (beta0.star_hat * lambda) + beta1.star_hat * (lambda * alpha.0_hat + lambda * alpha.1_hat) + (beta2.star_hat * lambda)
     
-    # derivative of probit function 'under no shift' for c = 0 and c = 1 respectively (eq. A.14).
-    phi_C0 <- dnorm( num_C0 / denom_A14 )
-    phi_C1 <- dnorm( num_C1 / denom_A14 )
+    # derivative of probit function 'under no shift' for c = 0 and c = 1 respectively (eq. A.12).
+    phi_C0 <- dnorm( num_C0 / denom_A12 )
+    phi_C1 <- dnorm( num_C1 / denom_A12 )
     
     # Probability of C = 0 and C = 1 respectively.
     P_C_0 <- sum(C == 0) / n
     P_C_1 <- sum(C == 1) / n
     
-    #derivative w.r.t. alpha.0_hat (eq. A.15)
-    denom_A15 <- sqrt(1 + (beta1.star_hat^2 * sigma_M.star_hat_sq))
-    grad_alpha0 <- ((beta1.star_hat/denom_A15) * (phi_C0.shift - phi_C0) * P_C_0) + 
-      ((beta1.star_hat/denom_A15) * (phi_C1.shift - phi_C1) * P_C_1)
+    #derivative w.r.t. alpha.0_hat (eq. A.13)
+    denom_A13 <- sqrt(1 + (beta1.star_hat^2 * sigma_M.star_hat_sq))
+    grad_alpha0 <- ((beta1.star_hat/denom_A13) * (phi_C0.shift - phi_C0) * P_C_0) + 
+      ((beta1.star_hat/denom_A13) * (phi_C1.shift - phi_C1) * P_C_1)
     
-    #derivative w.r.t. alpha.1_hat (eq. A.16)
-    grad_alpha1 <- (beta1.star_hat/denom_A15) * (phi_C1.shift - phi_C1) * P_C_1
+    #derivative w.r.t. alpha.1_hat (eq. A.14)
+    grad_alpha1 <- (beta1.star_hat/denom_A13) * (phi_C1.shift - phi_C1) * P_C_1
     
-    #derivative w.r.t. beta0.star_hat (eq. A.17)
-    grad_beta0.star_hat <- ((1/denom_A15) * (phi_C0.shift - phi_C0) * P_C_0) + 
-      ((1/denom_A15) * (phi_C1.shift - phi_C1) * P_C_1)
+    #derivative w.r.t. beta0.star_hat (eq. A.15)
+    grad_beta0.star_hat <- ((1/denom_A13) * (phi_C0.shift - phi_C0) * P_C_0) + 
+      ((1/denom_A13) * (phi_C1.shift - phi_C1) * P_C_1)
     
-    #derivative w.r.t. beta1.star_hat (eq. A.18)
-    denom_A18 <- lambda * (1 + beta1.star_hat^2 * sigma_M.star_hat_sq)^(3/2)
+    #derivative w.r.t. beta1.star_hat (eq. A.16)
+    denom_A16 <- lambda * (1 + beta1.star_hat^2 * sigma_M.star_hat_sq)^(3/2)
     
-    grad_beta1.star_hat <- (phi_C0.shift * (((lambda * alpha.0_hat - shift) - (beta1.star_hat * sigma_M.star_hat_sq * lambda * beta0.star_hat)) / denom_A18) - 
-                              phi_C0 * (((lambda * alpha.0_hat) - (beta1.star_hat * sigma_M.star_hat_sq * lambda * beta0.star_hat)) / denom_A18)) * P_C_0 + 
-      (phi_C1.shift *(((lambda * alpha.0_hat + lambda * alpha.1_hat - shift) - (beta1.star_hat * sigma_M.star_hat_sq * lambda * (beta0.star_hat + beta2.star_hat))) / denom_A18) -
-         phi_C1 * (((lambda * alpha.0_hat + lambda * alpha.1_hat) - (beta1.star_hat * sigma_M.star_hat_sq * lambda * (beta0.star_hat + beta2.star_hat))) / denom_A18) ) * P_C_1
+    grad_beta1.star_hat <- (phi_C0.shift * (((lambda * alpha.0_hat - shift) - (beta1.star_hat * sigma_M.star_hat_sq * lambda * beta0.star_hat)) / denom_A16) - 
+                              phi_C0 * (((lambda * alpha.0_hat) - (beta1.star_hat * sigma_M.star_hat_sq * lambda * beta0.star_hat)) / denom_A16)) * P_C_0 + 
+      (phi_C1.shift *(((lambda * alpha.0_hat + lambda * alpha.1_hat - shift) - (beta1.star_hat * sigma_M.star_hat_sq * lambda * (beta0.star_hat + beta2.star_hat))) / denom_A16) -
+         phi_C1 * (((lambda * alpha.0_hat + lambda * alpha.1_hat) - (beta1.star_hat * sigma_M.star_hat_sq * lambda * (beta0.star_hat + beta2.star_hat))) / denom_A16) ) * P_C_1
     
     
     
-    #derivative w.r.t. beta2.star_hat (eq. A.19)
-    grad_beta2.star_hat <- (1/denom_A15) * (phi_C1.shift - phi_C1) * P_C_1
+    #derivative w.r.t. beta2.star_hat (eq. A.17)
+    grad_beta2.star_hat <- (1/denom_A13) * (phi_C1.shift - phi_C1) * P_C_1
     
-    #derivative w.r.t. sigma_M2.star (eq. A.21)
+    #derivative w.r.t. sigma_M2.star (eq. A.19)
     lambda_prime <- sigma.u^2 / (sigma_M.star_hat_sq^2)
-    denom_A21 <- lambda^2 * (1 + beta1.star_hat^2 * sigma_M.star_hat_sq)
+    denom_A19 <- lambda^2 * (1 + beta1.star_hat^2 * sigma_M.star_hat_sq)
     
-    grad_sigma_M2.star_sq <- (phi_C0.shift * ((lambda * denom_A15 * (beta0.star_hat + beta1.star_hat * alpha.0_hat) * lambda_prime) - 
+    grad_sigma_M2.star_sq <- (phi_C0.shift * ((lambda * denom_A13 * (beta0.star_hat + beta1.star_hat * alpha.0_hat) * lambda_prime) - 
                                                 ((lambda * (beta0.star_hat + beta1.star_hat * alpha.0_hat) - (beta1.star_hat * shift)) * 
-                                                   ((denom_A15 * lambda_prime) + 
-                                                      ((lambda * beta1.star_hat^2)/ (2 * denom_A15) )))) * P_C_0/denom_A21) - 
-      (phi_C0 * ((lambda * denom_A15 * (beta0.star_hat + beta1.star_hat * alpha.0_hat) * lambda_prime) -
+                                                   ((denom_A13 * lambda_prime) + 
+                                                      ((lambda * beta1.star_hat^2)/ (2 * denom_A13) )))) * P_C_0/denom_A19) - 
+      (phi_C0 * ((lambda * denom_A13 * (beta0.star_hat + beta1.star_hat * alpha.0_hat) * lambda_prime) -
                    ((lambda * (beta0.star_hat + beta1.star_hat * alpha.0_hat)) *
-                      ((denom_A15 * lambda_prime) + 
-                         ((lambda * beta1.star_hat^2)/ (2 * denom_A15) )))) * P_C_0/denom_A21) +
-      (phi_C1.shift * ((lambda * denom_A15 * (beta0.star_hat + (beta1.star_hat * (alpha.0_hat + alpha.1_hat)) + beta2.star_hat) * lambda_prime) -
+                      ((denom_A13 * lambda_prime) + 
+                         ((lambda * beta1.star_hat^2)/ (2 * denom_A13) )))) * P_C_0/denom_A19) +
+      (phi_C1.shift * ((lambda * denom_A13 * (beta0.star_hat + (beta1.star_hat * (alpha.0_hat + alpha.1_hat)) + beta2.star_hat) * lambda_prime) -
                          ((lambda * (beta0.star_hat + (beta1.star_hat * (alpha.0_hat + alpha.1_hat)) + beta2.star_hat) - (beta1.star_hat * shift)) *
-                            ((denom_A15 * lambda_prime) + 
-                               ((lambda * beta1.star_hat^2)/ (2 * denom_A15) )))) * P_C_1/denom_A21) - 
-      (phi_C1 * ((lambda * denom_A15 * (beta0.star_hat + (beta1.star_hat * (alpha.0_hat + alpha.1_hat)) + beta2.star_hat) * lambda_prime)-
+                            ((denom_A13 * lambda_prime) + 
+                               ((lambda * beta1.star_hat^2)/ (2 * denom_A13) )))) * P_C_1/denom_A19) - 
+      (phi_C1 * ((lambda * denom_A13 * (beta0.star_hat + (beta1.star_hat * (alpha.0_hat + alpha.1_hat)) + beta2.star_hat) * lambda_prime)-
                    ((lambda * (beta0.star_hat + (beta1.star_hat * (alpha.0_hat + alpha.1_hat)) + beta2.star_hat)) * 
-                      ((denom_A15 * lambda_prime) + 
-                         ((lambda * beta1.star_hat^2)/ (2 * denom_A15) )))) * P_C_1/denom_A21)
+                      ((denom_A13 * lambda_prime) + 
+                         ((lambda * beta1.star_hat^2)/ (2 * denom_A13) )))) * P_C_1/denom_A19)
     
     
     
